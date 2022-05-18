@@ -1,0 +1,38 @@
+<html>
+    <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='lgsn.css')}}">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Acme&family=Bangers&display=swap" rel="stylesheet">
+	<title>Login Page</title>
+	<style>
+		::placeholder {
+	color:white;
+	opacity: 1; 
+  }
+	</style>
+    </head>
+    <body>
+        <center>
+        <form method="POST" action="{{url_for('login')}}">
+        <div class="container">
+            <div class="login-form">
+                <div class="login">
+                    <h3>LOGIN</h3>
+                    {{msg}}
+                </div>
+                <input type="text" name="name" placeholder="Username" required>
+                <input type="password" name="password" placeholder="password" required>
+                
+            <input type="submit" name="submit" class="btn"><br><br>
+    <a href="{{url_for('signup')}}" style="text-decoration: none;color: white;">click here to signup</a>
+            </div>
+        </div>
+        </form>
+    </center>
+        <video autoplay muted loop>
+            <source src="{{ url_for('static',filename='lg.mp4')}}" >
+        </video>
+    </body>
+</html>
