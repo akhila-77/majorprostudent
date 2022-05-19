@@ -1,0 +1,186 @@
+<html>
+    <head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<style>
+/* table td,th{
+    padding: 6px 10px 6px 10px; 
+    background-color: white;
+    border-collapse: collapse;
+}
+
+th{	
+    background-color: #ffc2b3;
+    color: black;
+}
+td{
+    word-break: break-all;
+} */
+table{
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  background-color: white;
+}
+
+td, th {
+  text-align: left;
+  padding: 8px;
+  /* column-width: 150px; */
+}
+th{
+	background-color: #DCDCDC;
+}
+tr:hover{
+    background-color: #DCDCDC;
+}
+select{
+  padding: 0 1em 0 0;
+  /* margin-top: 3%; */
+  height: 40px;
+  width: 20%;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+	border-radius: 10px;
+    box-shadow: 0 0 4px white;
+    outline: none;
+    cursor: pointer;
+}
+.btn{
+    margin-left: 10px;
+    margin-top: -3px;
+    padding: 4px 20px;
+	background: transparent;
+	border-radius: 10px;
+    border-color: white;
+	cursor: pointer;
+    font-size: 20px;
+    color: white;
+    box-shadow: 0 0 4px white;
+}
+.btn:hover{
+	background-color: white;
+	color: black;
+}
+video{
+  position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    object-fit: cover;
+	/* filter: brightness(10%); */
+
+}
+.container{
+    position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+.headerlink{
+text-decoration: none;
+
+    color: white;
+    padding: 10px 25px 10px 25px;
+    margin-top: 10px;
+}
+.headerlink:hover{
+    background-color: white;
+    color: black;
+    border-radius: 20px;
+    box-shadow: 0 0 5px white;
+
+}
+</style>
+    </head>
+    <body>
+        <!-- <p style="color: white;">logout</p> -->
+        <section style="text-align: right;margin-top: 20px;";>
+        <a href="{{url_for('adminfeedback')}}" class="headerlink">FEEDBACK</a>
+
+        <a href="{{url_for('home')}}" class="headerlink">LOGOUT</a>
+    </section>
+        <div class="mainhead">
+        <center>
+        <form method="POST" action="{{url_for('adminhome')}}">
+        <select name="opt">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="1_1">courses</option>
+            <option value="2_2">laptops</option>
+            <option value="3_3">Projects</option>
+            <option value="4_4">Placement</option>
+        </select>
+        <input type="submit" value="submit" name="submit" class="btn">
+        
+        </form>
+        <h3 style="color: white">{{msg}}</h3>
+
+        <div class="container">
+        <h1 class="welcome" style="color: white;">WELCOME ADMIN</h1>
+    </div>
+        </center>
+    </div>
+    <div>
+        <video autoplay muted loop>
+            <source src="{{ url_for('static',filename='welcome.mp4')}}" >
+        </video>
+        
+    </div>
+        {% if index %}
+        
+        <style> .welcome{
+            display: none;
+        }</style>
+        <center>
+            {% if index=='1_1' %} 
+            <h3 style="color: white;display: inline;">COURSE DETAILS</h3>
+            {% endif %} 
+            {% if index=='2_2' %} 
+            <h3 style="color: white;display: inline;">LAPTOP DETAILS</h3>
+            {% endif %} 
+            {% if index=='3_3' %} 
+            <h3 style="color: white;display: inline;">PROJECT DETAILS</h3>
+            {% endif %}  
+        {% if index=='4_4' %} 
+        <h3 style="color: white;display: inline;">PLACEMENT DETAILS</h3>
+        {% endif %} 
+    </center>
+        <div style = "display: flex; justify-content:flex-end">
+        <form method="POST" action="{{url_for('adminhome')}}">
+           
+            <button type="submit" value={{index}} name="submit" class="btn">add details</button>
+            
+        </form>
+    </div>
+    <section id="resumer" style="overflow-x: auto;">
+        <table>
+            <tr>
+        {% for i in colnames %}
+            <th>{{i}}</th>
+        {% endfor %}
+        <th>edit</th>
+        <th>delete</th>
+        </tr>
+        {% for i in data %}
+        <tr>
+        {% for j in i %}
+        <td>{{j}}</td>
+        {% endfor %}
+        <form method="POST" action="{{url_for('adminhome')}}">
+            <td><button type="submit" value={{i[0]}}+{{index}}+editing name="submit" style="background:transparent;border:none"><i class='fas fa-pen'></i>
+            </button></td>
+        <td><button type="submit" value={{i[0]}}+{{index}}+delete name="submit" style="background:transparent;border:none"><i class='fas fa-trash'></i></button></td>
+        </form>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+    {% endif %}
+
+    </body>
+</html>

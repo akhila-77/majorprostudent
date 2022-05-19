@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+     .container{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+::placeholder {
+	color:white;
+	opacity: 1; 
+  }
+textarea{
+	color: white;
+    margin-top: 10px;
+	width: 300px;
+	height: 40px;
+	background: transparent;
+	outline: none;
+	padding: 10px;
+	font-size: 15px;
+	border-radius: 30px;
+	box-shadow: 0 0 4px 0;
+  box-sizing: border-box;
+  resize: none;
+}
+textarea::-webkit-scrollbar {
+   display: none;
+ }
+.btn{
+	padding: 10px 30px;
+	margin-top: 30px;
+	background: transparent;
+	border-radius: 30px;
+	box-shadow: 0 0 4px white;
+	cursor: pointer;
+    color: white;
+	font-size: 15px;
+}
+
+video{
+  position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    object-fit: cover;
+	filter: brightness(30%);
+
+}
+
+textarea:focus, .btn:hover{
+	box-shadow: 0 0 10px white;	
+}
+.btn:hover{
+	background-color: whitesmoke;
+	color: black;
+    border: none;
+}
+.card {
+  /* box-shadow: 0 4px 8px 0 white; */
+  box-shadow: 0 0 10px white;
+  border-radius: 20px;
+  transition: 0.3s;
+  width: 30%;
+  position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    height: 550px;
+}
+        </style>
+    </head>
+    <body>
+<center>
+        <form method="POST" action="{{url_for('editform')}}">
+            <div class="card">
+                <div class="container">
+            {% for i in range(len) %}           
+            <textarea name={{colnames[i]}} value={{editdata[i]}}>{{editdata[i]}}</textarea>
+            {% endfor %}
+            <button type="submit" value={{index}} name="submit" class="btn">submit</button>
+        </div>
+    </div>
+        </form>
+	</center>
+        <video autoplay muted loop>
+            <source src="{{ url_for('static',filename='editbackground.mp4')}}" >
+        </video>
+    </body>
+</html>
