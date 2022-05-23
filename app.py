@@ -1,5 +1,4 @@
-from flask import Flask,render_template,request
-from idna import valid_contextj
+from flask import Flask,render_template,request,url_for,redirect,session
 from openpyxl import load_workbook
 import pandas as pd
 import numpy as np
@@ -9,6 +8,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import hashlib
 from csv import writer
 import csv
+from flask_mail import Mail,Message
+from random import randint
+
 def recommend_course(index,datasetname,num_of_rec=5):
     data=pd.read_csv(datasetname,encoding='ISO-8859-1')
     count_vect = CountVectorizer()
@@ -43,6 +45,53 @@ udata=pd.read_csv('unique_courses.csv')
 udata=udata.to_numpy()
 column_names=[]
 app=Flask(__name__)
+app.secret_key='project'
+mail=Mail(app)
+app.config["MAIL_SERVER"]='smtp.gmail.com'
+app.config["MAIL_PORT"]=465
+app.config["MAIL_USERNAME"]='akhilajulakanti77@gmail.com'
+app.config['MAIL_PASSWORD']='akhila@987'                    #you have to give your password of gmail account
+app.config['MAIL_USE_TLS']=False
+app.config['MAIL_USE_SSL']=True
+mail=Mail(app)
+otp=randint(000000,999999)
+@app.route('/verify',methods=["GET","POST"])
+def verify():
+    email=request.form["email"]
+    session['email']=email
+    msg=Message(subject='OTP',sender='akhilajulakanti77@gmail.com',recipients=[email])
+    msg.body=str(otp)
+    mail.send(msg)
+    return render_template('verify.html')
+@app.route('/validate',methods=['POST'])
+def validate():
+    user_otp=request.form['otp']
+    if otp==int(user_otp):
+        print(session['email'])
+        return render_template('updatepassword.html')
+    return "<h3>Please Try Again</h3>"
+@app.route('/updatepassword',methods=['GET','POST'])
+def updatepassword():
+    if(request.method=='POST'):
+        password1=request.form['password1']
+        password2=request.form['password2']
+        if(password1==password2):
+            wb = load_workbook('signup.xlsx')
+            page=wb.active
+            for i in range(1, page.max_row+1):
+                cell_obj = page.cell(row=i,column=3)
+                if(cell_obj.value==session['email']):
+                    print(page.cell(row=i,column=2).value)
+                    password3=(hashlib.md5(password1.encode())).hexdigest()
+                    page.cell(row=i,column=2).value=password3
+                    wb.save(filename='signup.xlsx')
+            return render_template('login.html',msg="succesfully updated the password")
+        else:
+            return render_template('updatepassword.html',msg="Please enter the correct password")
+    return render_template('updatepassword.html')
+@app.route('/forgetpassword')
+def forgetpassword():
+    return render_template("forgetpassword.html")
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -77,7 +126,8 @@ def login():
             cell_obj = page.cell(row=i,column=1)
             passwordcell=page.cell(row=i,column=2)
             if(cell_obj.value=='admin' and password==passwordcell.value):
-                return render_template('adminhome.html')
+                # return render_template('adminhome.html')
+                return redirect(url_for("adminhome"))
             elif(name==cell_obj.value and password==passwordcell.value):
                 return render_template('index.html',name=name)
             elif(name==cell_obj.value and password!=passwordcell.value):
@@ -92,7 +142,6 @@ def index():
 def career():
     if(request.method=='POST'):
         index=request.form['submit']
-        # print(int(index))
         res=recommend_course(int(index),'course.csv')
         print(res)
         res=res.to_numpy()
@@ -114,15 +163,13 @@ def feedback():
     page=wb.active
     data=[]
     for i in range(2, page.max_row+1):
-        id=page.cell(row=i,column=1)
-        name= page.cell(row=i,column=2)
-        feedback=page.cell(row=i,column=4)
-        likes=page.cell(row=i,column=5)
-        dislikes=page.cell(row=i,column=6)
-        data.append([id.value,name.value,feedback.value,likes.value,dislikes.value])
+        x=[]
+        for j in range(1,7):
+            if(j!=3):
+                x.append(page.cell(row=i,column=j).value)
+        data.append(x)
     if request.method == "POST":
         value=request.form['submit']
-        print(value)
         if(value=="submit"):
             name=request.form['name']
             email=request.form['email']
@@ -139,6 +186,13 @@ def feedback():
             page=wb.active
             page.cell(row=(int(x[1])+1),column=6).value=page.cell(row=(int(x[1])+1),column=6).value+1
             wb.save(filename='feedback.xlsx')
+            data=[]
+            for i in range(2, page.max_row+1):
+                x=[]
+                for j in range(1,7):
+                    if(j!=3):
+                        x.append(page.cell(row=i,column=j).value)
+                data.append(x)
             return render_template('feedback.html',data=data)
         if("like" in value):
             x=value.split('+')
@@ -146,6 +200,14 @@ def feedback():
             page=wb.active
             page.cell(row=(int(x[1])+1),column=5).value=page.cell(row=(int(x[1])+1),column=5).value+1
             wb.save(filename='feedback.xlsx')
+            data=[]
+            for i in range(2, page.max_row+1):
+                x=[]
+                for j in range(1,7):
+                    if(j!=3):
+                        x.append(page.cell(row=i,column=j).value)
+                data.append(x)
+            return render_template('feedback.html',data=data)
             return render_template('feedback.html',data=data)
         
     return render_template('feedback.html',data=data)
@@ -213,12 +275,13 @@ def adminhome():
             if(x[1]=="3_3"):
                 cname="projects.csv"
             if(x[1]=="4_4"):
-                cname="Placments.csv"
+                cname="Placements.csv"
             updatedlist=[]
             with open(cname,newline="") as f:
                 reader=csv.reader(f)
                 username=x[0]
                 for row in reader: 
+                    print(row)
                     if row[0]!=username:
                         updatedlist.append(row)
             with open(cname,"w",newline="") as f:
@@ -241,7 +304,7 @@ def editform():
         if(value=="3_3"):
             cname="projects.csv"
         if(value=="4_4"):
-            cname="Placments.csv"
+            cname="Placements.csv"
         r=[]
         data=pd.read_csv(cname,encoding='ISO-8859-1')
         colnames=data.columns
